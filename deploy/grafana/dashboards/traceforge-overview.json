@@ -1,0 +1,54 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API request rate",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "targets": [{ "expr": "sum(rate(traceforge_http_requests_total[5m]))", "legendFormat": "requests/s", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "Inflight requests",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "targets": [{ "expr": "sum(traceforge_http_inflight_requests)", "legendFormat": "inflight", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "type": "stat",
+      "title": "5xx ratio",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "targets": [{ "expr": "sum(rate(traceforge_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(traceforge_http_requests_total[5m])), 0.001)", "legendFormat": "errors", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 0.02 }] } }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request latency",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le, method) (rate(traceforge_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p50 {{method}}", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum by (le, method) (rate(traceforge_http_request_duration_seconds_bucket[5m])))", "legendFormat": "p95 {{method}}", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "type": "timeseries",
+      "title": "Responses by status",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 17 },
+      "targets": [{ "expr": "sum by (status) (rate(traceforge_http_requests_total[5m]))", "legendFormat": "{{status}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 41,
+  "tags": ["traceforge", "reliability", "sre"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "TraceForge API Overview",
+  "uid": "traceforge-api",
+  "version": 1
+}
