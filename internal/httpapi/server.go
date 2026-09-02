@@ -8,6 +8,7 @@ import (
 	telemetrymetrics "github.com/VictorOdoyo/traceforge-reliability-lab/internal/platform/metrics"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/ports"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/service"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type Server struct {
@@ -40,5 +41,6 @@ func New(repository ports.Repository, logger *slog.Logger) http.Handler {
 	mux.HandleFunc("POST /api/v1/alerts/{id}/acknowledge", server.acknowledgeAlert)
 	mux.HandleFunc("GET /api/v1/incidents", server.listIncidents)
 	mux.HandleFunc("POST /api/v1/incidents/{id}/transition", server.transitionIncident)
-	return metrics.Instrument(requestLog(logger, recoverPanic(logger, securityHeaders(cors(mux)))))
+	handler := metrics.Instrument(requestLog(logger, recoverPanic(logger, securityHeaders(cors(mux)))))
+	return otelhttp.NewHandler(handler, "traceforge.http")
 }
