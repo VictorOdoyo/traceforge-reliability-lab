@@ -1,0 +1,12 @@
+export type ServiceReliability = { service: string; traceCount: number; errorCount: number; errorRate: number; averageLatencyMs: number; p95LatencyMs: number; healthScore: number }
+export type Overview = { serviceCount: number; openAlerts: number; activeIncidents: number; errorBudgetRisks: number; services: ServiceReliability[] }
+export type Span = { traceId: string; spanId: string; parentId?: string; service: string; operation: string; startedAt: string; duration: number; status: 'ok' | 'error' | 'unset'; attributes: Record<string, string> }
+export type Trace = { id: string; spans: Span[]; startedAt: string; duration: number; rootService: string; hasError: boolean }
+export type SLO = { id: string; service: string; name: string; target: number; window: number; goodEvents: number; totalEvents: number }
+export type DependencyEdge = { source: string; target: string; calls: number; errors: number; averageLatencyMs: number }
+export type Alert = { id: string; service: string; title: string; severity: 'critical' | 'high' | 'medium' | 'low'; state: 'firing' | 'acknowledged' | 'resolved' | 'suppressed'; startedAt: string; updatedAt: string; owner?: string; labels: Record<string, string> }
+export type TimelineEvent = { id: string; kind: string; message: string; actor: string; occurredAt: string }
+export type Incident = { id: string; title: string; severity: Alert['severity']; status: 'investigating' | 'identified' | 'monitoring' | 'resolved'; commander: string; affectedServices: string[]; startedAt: string; resolvedAt?: string; timeline: TimelineEvent[] }
+export type Deployment = { id: string; service: string; version: string; environment: string; commitSha: string; deployedBy: string; deployedAt: string; changeSummary: string }
+export type DeploymentCorrelation = { deployment: Deployment; errorTraces: number; totalTraces: number; errorRate: number }
+export type AppData = { overview: Overview; traces: Trace[]; slos: SLO[]; topology: DependencyEdge[]; alerts: Alert[]; incidents: Incident[]; deployments: DeploymentCorrelation[] }
