@@ -6,7 +6,7 @@ describe('reliability API client', () => {
 
   it('aggregates every dashboard resource', async () => {
     const fetchMock = vi.fn((input: string | URL | Request) => {
-      const path = new URL(String(input)).pathname
+      const path = new URL(String(input), 'http://localhost').pathname
       const body = path.endsWith('overview') ? { serviceCount: 5 } : []
       return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
     })

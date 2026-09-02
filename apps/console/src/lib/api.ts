@@ -1,6 +1,6 @@
 import type { Alert, AppData, DeploymentCorrelation, DependencyEdge, Incident, Overview, SLO, Trace } from '../types'
 
-const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+const baseUrl = import.meta.env.VITE_API_URL ?? ''
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, { ...init, headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...init?.headers } })
