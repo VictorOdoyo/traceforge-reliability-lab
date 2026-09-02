@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"math"
 
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/domain"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/ports"
@@ -65,7 +66,7 @@ func summarizeService(name string, traces []domain.Trace) ServiceReliability {
 		total += value
 	}
 	errorRate := float64(errors) / float64(len(latencies)) * 100
-	p95Index := int(float64(len(latencies)-1) * .95)
+	p95Index := int(math.Ceil(float64(len(latencies))*.95)) - 1
 	score := int(100 - errorRate*2 - latencies[p95Index]/100)
 	if score < 0 {
 		score = 0
