@@ -12,7 +12,9 @@ import (
 
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/config"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/httpapi"
+	clickhousestore "github.com/VictorOdoyo/traceforge-reliability-lab/internal/platform/clickhouse"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/platform/telemetry"
+	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/ports"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/seed"
 )
 
@@ -29,7 +31,20 @@ func main() {
 		os.Exit(1)
 	}
 	defer func() { _ = shutdownTelemetry(context.Background()) }()
-	repository := seed.Repository(time.Now().UTC())
+	seedRepository := seed.Repository(time.Now().UTC())
+	var repository ports.Repository = seedRepository
+	if cfg.ClickHouseDSN != "" {
+		persistent, err := clickhousestore.New(context.Background(), cfg.ClickHouseDSN, seedRepository)
+		if err != nil {
+			logger.Error("ClickHouse setup failed", "error", err)
+			os.Exit(1)
+		}
+		defer func() { _ = persistent.Close() }()
+		repository = persistent
+		for _, trace := range seedRepository.Traces {
+			_ = persistent.SaveTrace(context.Background(), trace)
+		}
+	}
 	server := &http.Server{Addr: cfg.Address, Handler: httpapi.New(repository, logger), ReadHeaderTimeout: cfg.ReadTimeout, WriteTimeout: cfg.WriteTimeout, IdleTimeout: 60 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
