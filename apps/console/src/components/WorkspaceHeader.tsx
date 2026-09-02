@@ -1,0 +1,5 @@
+import { RefreshCw, Search } from 'lucide-react'
+
+export function WorkspaceHeader({ window, onWindowChange, refreshing, onRefresh }: { window: string; onWindowChange: (value: string) => void; refreshing: boolean; onRefresh: () => void }) {
+  return <header className="workspace-header"><div><span className="eyebrow">Reliability workspace</span><h1>Production overview</h1><p>Trace evidence, service health, and active response in one operational view.</p></div><div className="header-actions"><label className="global-search"><Search size={16} /><span className="sr-only">Search TraceForge</span><input placeholder="Search traces or services" /></label><div className="segmented" aria-label="Time range">{['1h','6h','24h','7d'].map(value => <button key={value} className={window === value ? 'selected' : ''} onClick={() => onWindowChange(value)}>{value}</button>)}</div><button className="icon-button" title="Refresh telemetry" onClick={onRefresh} disabled={refreshing}><RefreshCw size={17} className={refreshing ? 'spin' : ''} /></button></div></header>
+}
