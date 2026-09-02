@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collector-config
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc: { endpoint: 0.0.0.0:4317 }
+          http: { endpoint: 0.0.0.0:4318 }
+    processors:
+      memory_limiter: { check_interval: 1s, limit_mib: 384, spike_limit_mib: 96 }
+      tail_sampling:
+        decision_wait: 5s
+        policies:
+          - name: errors
+            type: status_code
+            status_code: { status_codes: [ERROR] }
+          - name: baseline
+            type: probabilistic
+            probabilistic: { sampling_percentage: 10 }
+      batch: { timeout: 2s }
+    exporters:
+      clickhouse:
+        endpoint: tcp://clickhouse:9000?dial_timeout=10s&compress=lz4
+        database: traceforge
+        username: traceforge
+        password: change-me
+        ttl: 168h
+        create_schema: true
+      prometheus: { endpoint: 0.0.0.0:8889 }
+    service:
+      pipelines:
+        traces: { receivers: [otlp], processors: [memory_limiter, tail_sampling, batch], exporters: [clickhouse] }
+        metrics: { receivers: [otlp], processors: [memory_limiter, batch], exporters: [prometheus] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app.kubernetes.io/name: otel-collector }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: otel-collector }
+    spec:
+      containers:
+        - name: collector
+          image: otel/opentelemetry-collector-contrib:0.136.0
+          args: ["--config=/etc/otelcol/config.yaml"]
+          ports:
+            - { name: otlp-grpc, containerPort: 4317 }
+            - { name: otlp-http, containerPort: 4318 }
+            - { name: metrics, containerPort: 8889 }
+          volumeMounts:
+            - { name: config, mountPath: /etc/otelcol, readOnly: true }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 512Mi }
+      volumes:
+        - name: config
+          configMap: { name: collector-config }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collector
+spec:
+  selector: { app.kubernetes.io/name: otel-collector }
+  ports:
+    - { name: otlp-grpc, port: 4317 }
+    - { name: otlp-http, port: 4318 }
+    - { name: metrics, port: 8889 }

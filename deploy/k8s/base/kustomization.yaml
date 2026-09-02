@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: traceforge
+resources:
+  - namespace.yaml
+  - config.yaml
+  - clickhouse.yaml
+  - collector.yaml
+  - api.yaml
+  - console.yaml
+  - availability.yaml

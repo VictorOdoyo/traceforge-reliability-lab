@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traceforge-config
+data:
+  PORT: "8080"
+  READ_TIMEOUT: 5s
+  WRITE_TIMEOUT: 15s
+  SHUTDOWN_TIMEOUT: 10s
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4317
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: clickhouse-credentials
+type: Opaque
+stringData:
+  username: traceforge
+  password: change-me
+  dsn: clickhouse://traceforge:change-me@clickhouse:9000/traceforge
