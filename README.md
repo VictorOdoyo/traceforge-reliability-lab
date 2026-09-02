@@ -133,6 +133,7 @@ Vitest enforces coverage thresholds for shared console logic. CI also enforces a
 | `CLICKHOUSE_DSN` | empty | Enables persistent trace storage |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | empty | Enables OTLP trace export |
 | `VITE_API_URL` | empty | Optional console API origin override |
+| `VITE_PROXY_TARGET` | `http://localhost:8080` | Development proxy target |
 
 See [architecture](docs/ARCHITECTURE.md), [incident response](docs/INCIDENT_RESPONSE.md), [SLO operations](docs/SLO_OPERATIONS.md), and [security](SECURITY.md) for operational detail.
 
