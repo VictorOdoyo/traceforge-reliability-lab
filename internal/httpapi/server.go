@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	telemetrymetrics "github.com/VictorOdoyo/traceforge-reliability-lab/internal/platform/metrics"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/ports"
 	"github.com/VictorOdoyo/traceforge-reliability-lab/internal/service"
 )
@@ -24,6 +25,8 @@ type Server struct {
 func New(repository ports.Repository, logger *slog.Logger) http.Handler {
 	server := &Server{repository: repository, traces: service.NewTraceQuery(repository), reliability: service.NewReliabilityService(repository), topology: service.NewTopologyService(repository), correlations: service.NewCorrelationService(repository), alerts: service.NewAlertService(repository), incidents: service.NewIncidentService(repository), logger: logger, clock: time.Now}
 	mux := http.NewServeMux()
+	metrics := telemetrymetrics.NewHTTPMetrics()
+	mux.Handle("GET /metrics", metrics.Handler())
 	mux.HandleFunc("GET /health/live", server.live)
 	mux.HandleFunc("GET /health/ready", server.ready)
 	mux.HandleFunc("GET /api/v1/overview", server.overview)
@@ -37,5 +40,5 @@ func New(repository ports.Repository, logger *slog.Logger) http.Handler {
 	mux.HandleFunc("POST /api/v1/alerts/{id}/acknowledge", server.acknowledgeAlert)
 	mux.HandleFunc("GET /api/v1/incidents", server.listIncidents)
 	mux.HandleFunc("POST /api/v1/incidents/{id}/transition", server.transitionIncident)
-	return requestLog(logger, recoverPanic(logger, securityHeaders(cors(mux))))
+	return metrics.Instrument(requestLog(logger, recoverPanic(logger, securityHeaders(cors(mux)))))
 }
