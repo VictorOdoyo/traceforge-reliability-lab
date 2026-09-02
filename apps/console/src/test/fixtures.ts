@@ -1,0 +1,6 @@
+import type { Alert, Incident, SLO, Trace } from '../types'
+
+export const trace: Trace = { id:'trace-001',rootService:'gateway',startedAt:'2026-09-02T08:00:00Z',duration:400_000_000,hasError:true,spans:[{traceId:'trace-001',spanId:'root',service:'gateway',operation:'POST /checkout',startedAt:'2026-09-02T08:00:00Z',duration:400_000_000,status:'ok',attributes:{}},{traceId:'trace-001',spanId:'child',parentId:'root',service:'payments',operation:'Authorize',startedAt:'2026-09-02T08:00:00.050Z',duration:220_000_000,status:'error',attributes:{}}] }
+export const slo: SLO = { id:'slo-1',service:'payments',name:'Payment success',target:99,totalEvents:1000,goodEvents:995,window:2_592_000_000_000_000 }
+export const alert: Alert = { id:'alert-1',service:'payments',title:'Payment errors elevated',severity:'critical',state:'firing',startedAt:'2026-09-02T08:00:00Z',updatedAt:'2026-09-02T08:02:00Z',labels:{} }
+export const incident: Incident = { id:'inc-1',title:'Payment authorization failures',severity:'critical',status:'investigating',commander:'Samira',affectedServices:['payments'],startedAt:'2026-09-02T08:00:00Z',timeline:[{id:'event-1',kind:'detected',message:'Fast burn detected',actor:'alert-router',occurredAt:'2026-09-02T08:01:00Z'}] }
