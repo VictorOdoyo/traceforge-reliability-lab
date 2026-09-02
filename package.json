@@ -1,0 +1,13 @@
+{
+  "name": "traceforge-reliability-lab",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "pnpm --filter @traceforge/console dev",
+    "build": "pnpm --filter @traceforge/console build",
+    "lint": "pnpm --filter @traceforge/console lint",
+    "typecheck": "pnpm --filter @traceforge/console typecheck",
+    "test": "pnpm --filter @traceforge/console test"
+  }
+}

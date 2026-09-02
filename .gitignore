@@ -1,0 +1,13 @@
+.env
+.env.local
+.idea/
+.vscode/
+*.log
+bin/
+coverage/
+dist/
+node_modules/
+tmp/
+*.out
+apps/console/.vite/
+apps/console/coverage/
