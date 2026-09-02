@@ -7,7 +7,7 @@ COPY cmd ./cmd
 COPY internal ./internal
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/traceforge-api ./cmd/api
 
-FROM alpine:3.22
+FROM alpine:3.24
 RUN addgroup -S traceforge && adduser -S -G traceforge traceforge
 COPY --from=build /out/traceforge-api /usr/local/bin/traceforge-api
 USER traceforge
